@@ -1,0 +1,102 @@
+# services:
+#   db:
+#     image: postgres
+#     volumes:
+#       - ./data/db:/var/lib/postgresql/data
+#     environment:
+#       - POSTGRES_DB=postgres
+#       - POSTGRES_USER=postgres
+#       - POSTGRES_PASSWORD=postgres
+#   web:
+#     build: .
+#     command: python manage.py runserver 0.0.0.0:8000
+#     volumes:
+#       - .:/code
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - POSTGRES_NAME=postgres
+#       - POSTGRES_USER=postgres
+#       - POSTGRES_PASSWORD=postgres
+#     depends_on:
+#       - db
+
+version: "3.8"
+   
+services:
+    django:
+        build: .
+        container_name: django
+        command: >
+                bash -c "python manage.py makemigrations &&
+                            python manage.py migrate &&
+                            python manage.py runserver 0.0.0.0:8000"
+        volumes:
+            - .:/usr/src/app/
+            - db_backups:/usr/src/app/db_backups
+        ports:
+            - "8000:8000"
+        environment:
+            - DEBUG=1
+            - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+            - CELERY_BROKER=redis://redis:6379/0
+            - CELERY_BACKEND=redis://redis:6379/0
+            - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - PGPASSFILE=/usr/src/app/.pgpass
+            - PGPASSPWORD=postgres
+        depends_on:
+            - db
+            - redis
+    celery:
+        build: .
+        command: celery -A django_project worker -l DEBUG
+        volumes:
+            - .:/usr/src/app/
+        environment:
+            - DEBUG=1
+            - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+            - CELERY_BROKER=redis://redis:6379/0
+            - CELERY_BACKEND=redis://redis:6379/0
+            - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - PGPASSWORD=postgres
+        depends_on:
+            - django
+            - redis
+    celerybeat:
+        build: .
+        command: celery -A django_project beat -l DEBUG
+        volumes:
+            - .:/usr/src/app/
+        environment:
+            - DEBUG=1
+            - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+            - CELERY_BROKER=redis://redis:6379/0
+            - CELERY_BACKEND=redis://redis:6379/0
+        depends_on:
+            - django
+            - redis
+
+    db:
+        image: postgres:15.5-alpine
+        user: 1000:1000
+        container_name: db
+        environment:
+            - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        volumes:
+            - ./data/db:/var/lib/postgresql/data
+        expose:
+            - 5432
+    redis:
+        image: "redis:alpine"
+        expose:
+            - 6379
+        
+volumes:
+    db: {}
+    db_backups: {}

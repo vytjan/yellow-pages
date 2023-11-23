@@ -1,0 +1,34 @@
+# Python compiled files
+*.pyc
+*.pyo
+__pycache__
+
+# Database
+*.sqlite3
+
+# Log files
+*.log
+
+# Environment variables
+.env
+
+# IDE/Editor Folders
+.vscode/
+.idea/
+
+# Virtual environment
+venv/
+env/
+
+# Django static and media files
+staticfiles/
+media/
+
+# celerybeat-schedule
+celerybeat-schedule*
+
+# Backup files
+db_backups/*.sql
+
+# also, pgsql db itself
+data/
