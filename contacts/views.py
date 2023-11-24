@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from .models import Contact
@@ -78,7 +78,7 @@ def edit(request, id):
 def delete(request, id):
     contact = Contact.objects.get(pk=id)
     if request.user != contact.user:
-        return HttpResponseForbidden("You are not allowed to edit this contact.")
+        return HttpResponseForbidden("You are not allowed to delete this contact.")
     if request.method == 'POST':
         contact.delete()
     return HttpResponseRedirect(reverse('index'))
