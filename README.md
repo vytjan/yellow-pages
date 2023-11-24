@@ -42,8 +42,9 @@
     - Celery for scheduling a daily job to backup the database.
         - Notes. Everything in a docker with docker compose (django, db, redis, celery worker, and celery beat services).
 
-- General notes.
+- General notes and issues/todos:
     - All env vars are dummy ones.
     - Backend+frontend fully in Django, no Vue.js (widgets???)
     - Still needs to be configured for CI/CD and cloud deployment. -> Tested only locally.
     - Ugly bootstrap UI.
+    - Need to fix the data dir ownership issues. For now a quickfix is to change ownership of data/* dir to 1000:1000.
