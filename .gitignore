@@ -27,8 +27,9 @@ media/
 # celerybeat-schedule
 celerybeat-schedule*
 
-# Backup files
-db_backups/*.sql
 
 # also, pgsql db itself
 data/
+
+# also all sql files
+*.sql
